@@ -19,14 +19,25 @@ defmodule AdventOfCode2021 do
 
   @spec main2 :: :ok
   def main2() do
-    {:ok, content} = File.read("lib/actual_input")
-    mapped_content = content
+    {:ok, content} = File.read("lib/test_input")
+    parsed_content = content
     |> String.split("\r\n")
     |> Enum.map(&not_stupid_parse/1)
+    parsed_content
+    #|> Enum.map(&dupe/1)
     |> Enum.with_index()
+    |> Enum.map(fn elem -> make_triplet(elem, parsed_content) end)
+    |> Enum.reject(&is_nil/1)
+    |> Enum.map(fn %{first: f, second: s, third: t} -> %{first: f, second: s, third: t, sum: f+s+t } end )
 
-    mapped_content
-    |> Enum.map(fn x -> make_triplet(x, mapped_content) end)
+
+    #mapped_content = content
+    #|> Enum.to_list()
+    #mapped_content
+    #|> Enum.map(fn x -> make_triplet(x, mapped_content) end)
+    #|> Enum.reject(&is_nil/1)
+    #|> print_result()
+
 
     #|> Enum.reduce(@default, fn elem, acc ->
     #    case acc.prev do
@@ -38,13 +49,17 @@ defmodule AdventOfCode2021 do
     # |> print_result()
   end
 
+  def dupe(elem) do
+    {elem, elem, elem}
+  end
+
   def make_triplet({first, index}, enumerable) do
-    {second, _} = Enum.at(enumerable, index + 1)
-    {third, _} = Enum.at(enumerable, index + 2)
+    second = Enum.at(enumerable, index + 1)
+    third = Enum.at(enumerable, index + 2)
 
     case {first, second, third} do
-       {_,nil,_} ->
-       {_,_,nil} -> _
+       {_,nil,_} -> nil
+       {_,_,nil} -> nil
        {f, s, t} -> %{first: f, second: s, third: t}
     end
 
